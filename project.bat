@@ -1,6 +1,12 @@
 @echo off
 
-set ProjectsFolder= C:\Users\c0llat2\OneDrive\Projects\
+SET mypath=%~dp0
+SET ProjectsFolder=%mypath:~0,-1%
+
+
+IF "%1"==""  IF "%2"=="" (
+call :CheckPath "%ProjectsFolder%"  "%PATH%"   
+)
 
 set str1=%1
 IF  x%str1:-=%==x%str1% (
@@ -19,23 +25,23 @@ IF  x%str1:-=%==x%str1% (
 
 :DIR
 IF "%2"=="" (
-IF EXIST %ProjectsFolder%%1\ (
-    cd %ProjectsFolder%%1
+IF EXIST %ProjectsFolder%\%1\ (
+    cd %ProjectsFolder%\%1
     for /d %%e in (*) do (
         @echo    %%e
     )
 
 ) ELSE (
-    mkdir %ProjectsFolder%%1
-    cd %ProjectsFolder%%1
+    mkdir %ProjectsFolder%\%1
+    cd %ProjectsFolder%\%1
 ))
 
 IF NOT "%2"=="" (
     IF EXIST %ProjectsFolder%\%1\%2\ (
-    cd %ProjectsFolder%%1\%2
+    cd %ProjectsFolder%\%1\%2
 ) ELSE (
-    mkdir %ProjectsFolder%%1\%2
-    cd %ProjectsFolder%%1\%2
+    mkdir %ProjectsFolder%\%1\%2
+    cd %ProjectsFolder%\%1\%2
 )) 
 GOTO:end
 
@@ -54,18 +60,46 @@ GOTO:end
 
 
 :remove
-    IF "%2"==""  ( echo Need to specify platform )
-    IF "%3"==""  ( echo Need to specify project )
-    IF NOT  "%2"=="" IF NOT "%3"=="" ( 
-        rmdir %ProjectsFolder%%2\%3 
-        )      
-
+    cd %ProjectsFolder%
+    IF "%2"==""  echo Need to specify platform 
+    IF NOT "%2"=="" IF "%3"=="" ( 
+        rmdir /s %ProjectsFolder%\%2 
+        )
+       IF NOT "%2"=="" IF NOT "%3"=="" ( 
+        rmdir /s %ProjectsFolder%\%2 
+        )
 GOTO:end
+
+
+
 
 :showfolders
 for /d %%e in (%1\*) do (
         @echo                         %%e
     )
+ GOTO:end
+
+
+
+
+
+
+
+
+:CheckPath
+    echo.%2 | findstr /C:"%1"  1>nul
+
+    if errorlevel 1 (
+    echo Need to run as admin to set up Project Manager.
+    setx /M PATH "%PATH%;%ProjectsFolder%"
+    pause
+    ) ELSE (
+     echo Project Manager already set up.
+     pause
+    )
+    GOTO:end
+
+
 
 
 :end
